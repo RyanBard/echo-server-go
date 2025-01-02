@@ -5,9 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net"
-
-	"github.com/sirupsen/logrus"
 )
 
 func handleConnection(conn net.Conn) {
@@ -17,32 +16,32 @@ func handleConnection(conn net.Conn) {
 		line, err := r.ReadString('\n')
 		if err != nil {
 			if errors.Is(err, io.EOF) {
-				logrus.Info("Caller closed connection, returning...")
+				log.Print("Caller closed connection, returning...")
 				return
 			}
-			logrus.Warn("Error reading string! err=", err.Error())
+			log.Printf("Error reading string! err=%s", err.Error())
 			return
 		}
 		_, err = fmt.Fprintln(conn, line)
 		if err != nil {
-			logrus.Warn("Error writing string! err=", err.Error())
+			log.Printf("Error writing string! err=%s", err.Error())
 			return
 		}
 	}
 }
 
 func main() {
-	logrus.Info("Starting on port 8080...")
+	log.Print("Starting on port 8080...")
 	ln, err := net.Listen("tcp", ":8080")
 	if err != nil {
-		logrus.Fatal("Failed to listen on port 8080! err=", err.Error())
+		log.Fatalf("Failed to listen on port 8080! err=%s", err.Error())
 	}
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
-			logrus.Warn("Failed to accept connection! err=", err.Error())
+			log.Printf("Failed to accept connection! err=%s", err.Error())
 		}
-		logrus.Info("Connection accepted, handling...")
+		log.Print("Connection accepted, handling...")
 		go handleConnection(conn)
 	}
 }
